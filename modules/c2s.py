@@ -1,7 +1,12 @@
 from rich.console import Console
 import subprocess
 import os
-from modules import utils
+
+def tool_exists(path):
+    return os.path.exists(path)
+
+def is_command_available(cmd):
+    return subprocess.run(["which", cmd], stdout=subprocess.DEVNULL).returncode == 0
 
 console = Console()
 
@@ -13,7 +18,7 @@ def install():
 
         # Sliver C2
         sliver_path = "/opt/tools/sliver-server"
-        if not utils.tool_exists(sliver_path):
+        if not tool_exists(sliver_path):
             subprocess.run([
                 "wget",
                 "https://github.com/BishopFox/sliver/releases/latest/download/sliver-server_linux",
@@ -23,14 +28,14 @@ def install():
         else:
             console.print("[green][✓] Sliver C2 binary already exists[/green]")
 
-        if not utils.is_command_available("sliver-server"):
+        if not is_command_available("sliver-server"):
             subprocess.run(["ln", "-sf", sliver_path, "/usr/local/bin/sliver-server"], check=True)
 
         # Empire
         empire_dir = "/opt/tools/Empire"
-        if not utils.tool_exists(empire_dir):
+        if not tool_exists(empire_dir):
             subprocess.run(["git", "clone", "--depth=1", "https://github.com/BC-SECURITY/Empire.git", empire_dir], check=True)
-            subprocess.run([f"{empire_dir}/setup/install.sh", "--yes"], check=True)
+            subprocess.run(["bash", f"{empire_dir}/setup/install.sh"], check=True)
         else:
             console.print("[green][✓] Empire already cloned[/green]")
 
